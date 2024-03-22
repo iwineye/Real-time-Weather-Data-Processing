@@ -1,0 +1,56 @@
+--To Get today's date
+SET current_date = CURRENT_DATE();
+
+-- QUERY To get Average Temperature for the Day
+SELECT AVG(temperature) AS avg_temperature
+FROM temperature_data
+WHERE date = current_date;
+
+--  QUERY To get Maximum Temperature for the Day
+SELECT MAX(temperature) AS max_temperature
+FROM temperature_data
+WHERE date = current_date;
+
+--  QUERY To get Minimum Temperature for the Day
+SELECT MIN(temperature) AS min_temperature
+FROM temperature_data
+WHERE date = current_date;
+
+--  QUERY To get Hourly Average Temperatures
+SELECT HOUR(timestamp) AS hour,
+       AVG(temperature) AS avg_temperature
+FROM temperature_data
+WHERE date = current_date
+GROUP BY HOUR(timestamp)
+ORDER BY hour;
+
+--  QUERY To get Temperature Range for Each Hour
+SELECT HOUR(timestamp) AS hour,
+       MIN(temperature) AS min_temperature,
+       MAX(temperature) AS max_temperature
+FROM temperature_data
+WHERE date = current_date
+GROUP BY HOUR(timestamp)
+ORDER BY hour;
+
+-- QUERY To get Total Number of Measurements per Hour
+SELECT HOUR(timestamp) AS hour,
+       COUNT(*) AS measurement_count
+FROM temperature_data
+WHERE date = current_date
+GROUP BY HOUR(timestamp)
+ORDER BY hour;
+
+-- To get Percentage of Time Spent in Each Temperature Range in a day
+SELECT CASE
+           WHEN temperature < 0 THEN 'Below Freezing'
+           WHEN temperature >= 0 AND temperature < 10 THEN '0-10°C'
+           WHEN temperature >= 10 AND temperature < 20 THEN '10-20°C'
+           WHEN temperature >= 20 AND temperature < 30 THEN '20-30°C'
+           ELSE 'Above 30°C'
+       END AS temperature_range,
+       COUNT(*) AS measurement_count,
+       (COUNT(*) * 100.0 / (SELECT COUNT(*) FROM temperature_data WHERE date = current_date)) AS percentage
+FROM temperature_data
+WHERE date = current_date
+GROUP BY temperature_range;
